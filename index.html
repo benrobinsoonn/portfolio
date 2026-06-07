@@ -3,203 +3,1087 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Portfolio of Ben Robinson">
-  <title>Ben Robinson's Portfolio</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Ben Robinson — CS & Mathematics undergraduate at NUS, ASEAN Scholar, IMO Bronze Medalist, AI Olympiad delegate.">
+  <title>Ben Robinson</title>
   <link rel="icon" href="pic ben.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    /* ─── Design tokens ──────────────────────────────────────────────── */
+    :root {
+      --ink:      #0d0d0d;
+      --paper:    #f5f2eb;
+      --accent:   #c84b2f;
+      --accent2:  #2a6496;
+      --muted:    #7a7269;
+      --rule:     rgba(13,13,13,0.12);
+      --card-bg:  #ffffff;
+      --serif:    'DM Serif Display', Georgia, serif;
+      --sans:     'DM Sans', system-ui, sans-serif;
+      --radius:   4px;
+      --max:      1100px;
+      --nav-h:    64px;
+    }
+
+    /* ─── Reset & Base ───────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--sans);
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Animated grain overlay ─────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.5;
+    }
+
+    /* ─── Cursor dot ─────────────────────────────────────────────────── */
+    #cursor {
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: multiply;
+    }
+    body:hover #cursor { opacity: 1; }
+
+    /* ─── Scroll progress bar ────────────────────────────────────────── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0;
+      height: 3px;
+      background: var(--accent);
+      width: 0%;
+      z-index: 1001;
+      transition: width 0.1s linear;
+    }
+
+    /* ─── Nav ─────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(245,242,235,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+      z-index: 1000;
+      display: flex; align-items: center;
+    }
+    .nav-inner {
+      max-width: var(--max);
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links {
+      display: flex; gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* hamburger */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--ink); transition: 0.3s; }
+    .nav-mobile { display: none; }
+
+    /* ─── Section layout ─────────────────────────────────────────────── */
+    section, header { padding: 100px 0; }
+    .container {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+      max-width: 80px;
+    }
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 3rem;
+    }
+
+    /* ─── Hero ────────────────────────────────────────────────────────── */
+    #home {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding-top: var(--nav-h);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 4rem;
+      align-items: center;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+    }
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      margin-bottom: 1.75rem;
+      opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .hero-subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+      opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+    }
+    .hero-cta-row {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.7s 0.65s forwards;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: var(--radius);
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+      border: 2px solid var(--ink);
+    }
+    .btn-primary:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(200,75,47,0.28);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--ink);
+      border: 2px solid var(--rule);
+    }
+    .btn-outline:hover {
+      border-color: var(--ink);
+      transform: translateY(-2px);
+    }
+
+    /* hero image */
+    .hero-img-wrap {
+      position: relative;
+      opacity: 0; animation: fadeIn 0.9s 0.5s forwards;
+    }
+    .hero-img-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -16px;
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      z-index: 0;
+      opacity: 0.35;
+    }
+    .hero-img-wrap::after {
+      content: '';
+      position: absolute;
+      right: -24px; bottom: -24px;
+      width: 140px; height: 140px;
+      background: repeating-linear-gradient(45deg, var(--rule) 0, var(--rule) 1px, transparent 0, transparent 50%);
+      background-size: 10px 10px;
+      z-index: -1;
+    }
+    .hero-img-wrap img {
+      width: 100%;
+      aspect-ratio: 4/5;
+      object-fit: cover;
+      object-position: top;
+      border-radius: var(--radius);
+      position: relative; z-index: 1;
+      filter: grayscale(15%);
+      transition: filter 0.4s;
+    }
+    .hero-img-wrap:hover img { filter: grayscale(0%); }
+
+    /* hero stats ticker */
+    .hero-stats {
+      display: flex; gap: 2.5rem; margin-top: 2.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.8s forwards;
+    }
+    .stat-item { border-left: 2px solid var(--accent); padding-left: 0.75rem; }
+    .stat-num { font-family: var(--serif); font-size: 2rem; line-height: 1; }
+    .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* hero bg decoration */
+    .hero-bg-text {
+      position: absolute;
+      right: -2%;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--serif);
+      font-size: 28vw;
+      color: rgba(13,13,13,0.025);
+      pointer-events: none;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* ─── Marquee strip ──────────────────────────────────────────────── */
+    .marquee-strip {
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 14px 0;
+      overflow: hidden;
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .marquee-track {
+      display: flex;
+      white-space: nowrap;
+      animation: marquee 28s linear infinite;
+    }
+    .marquee-item {
+      padding: 0 2rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 1.5rem;
+    }
+    .marquee-item::after {
+      content: '✦';
+      color: var(--accent);
+      font-size: 0.6rem;
+    }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ─── About ──────────────────────────────────────────────────────── */
+    #about { background: var(--card-bg); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .about-body {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.8;
+      font-weight: 300;
+    }
+    .about-body p + p { margin-top: 1.2em; }
+    .about-body strong { color: var(--ink); font-weight: 500; }
+    .about-right { position: sticky; top: 100px; }
+    .about-list { list-style: none; }
+    .about-list li {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.9rem;
+    }
+    .about-list li:first-child { border-top: 1px solid var(--rule); }
+    .about-list .label { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .about-list .value { font-weight: 500; text-align: right; }
+
+    /* ─── Skills ─────────────────────────────────────────────────────── */
+    #skills { position: relative; overflow: hidden; }
+    .skills-top {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 3rem;
+    }
+    .skills-top h2 { margin-bottom: 0; }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .skill-card {
+      background: var(--paper);
+      padding: 2.5rem 2rem;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;
+      transition: background 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-card:hover { background: var(--card-bg); }
+    .skill-card::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    .skill-card:hover::before { width: 100%; }
+    .skill-icon-wrap {
+      width: 52px; height: 52px;
+      border-radius: 8px;
+      background: var(--rule);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      transition: background 0.2s;
+    }
+    .skill-card:hover .skill-icon-wrap { background: var(--accent); color: #fff; }
+    .skill-img { width: 36px; height: 36px; object-fit: contain; }
+    .skill-name { font-weight: 500; font-size: 0.95rem; }
+    .skill-bar-wrap { width: 100%; background: var(--rule); height: 3px; border-radius: 99px; margin-top: 0.25rem; }
+    .skill-bar { height: 3px; background: var(--accent); border-radius: 99px; transition: width 1.2s ease; width: 0; }
+
+    /* ─── Education ──────────────────────────────────────────────────── */
+    #education { background: var(--card-bg); }
+    .edu-timeline { position: relative; padding-left: 2rem; }
+    .edu-timeline::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 1px; background: var(--rule);
+    }
+    .edu-entry {
+      position: relative;
+      padding-bottom: 4rem;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 3rem;
+    }
+    .edu-entry:last-child { padding-bottom: 0; }
+    .edu-entry::before {
+      content: '';
+      position: absolute;
+      left: -2rem;
+      top: 8px;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--paper);
+      box-shadow: 0 0 0 1px var(--accent);
+      transform: translateX(-4px);
+    }
+    .edu-meta { text-align: right; }
+    .edu-period {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .edu-photo {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-top: 1rem;
+      filter: grayscale(20%);
+      transition: filter 0.3s;
+    }
+    .edu-photo:hover { filter: grayscale(0%); }
+    .edu-school {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+    .edu-degree { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; font-weight: 300; }
+    .edu-highlights { list-style: none; }
+    .edu-highlights li {
+      padding: 0.35rem 0;
+      font-size: 0.9rem;
+      display: flex; gap: 0.6rem;
+    }
+    .edu-highlights li::before { content: '—'; color: var(--accent); flex-shrink: 0; }
+
+    /* ─── Achievements ───────────────────────────────────────────────── */
+    #achievements { overflow: hidden; }
+    .ach-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .ach-card {
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      padding: 2rem;
+      background: var(--card-bg);
+      position: relative;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+      overflow: hidden;
+    }
+    .ach-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(200,75,47,0.1);
+      transform: translateY(-3px);
+    }
+    .ach-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .ach-title { font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.4rem; font-weight: 400; }
+    .ach-desc { font-size: 0.85rem; color: var(--muted); font-weight: 300; line-height: 1.6; }
+    .ach-card .medal {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      background: var(--accent); color: white;
+      padding: 3px 10px; border-radius: 99px;
+    }
+    .ach-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    /* ─── Projects ───────────────────────────────────────────────────── */
+    #projects { background: var(--ink); color: var(--paper); }
+    #projects .section-label { color: var(--accent); }
+    #projects .section-label::after { background: rgba(245,242,235,0.2); }
+    #projects h2 { color: var(--paper); }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .project-card {
+      border: 1px solid rgba(245,242,235,0.1);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: rgba(255,255,255,0.04);
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      display: flex; flex-direction: column;
+    }
+    .project-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .project-img {
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      width: 100%;
+      transition: transform 0.5s ease;
+    }
+    .project-card:hover .project-img { transform: scale(1.04); }
+    .project-img-wrap { overflow: hidden; }
+    .project-body { padding: 1.75rem; flex: 1; display: flex; flex-direction: column; }
+    .project-num {
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.5rem;
+    }
+    .project-title { font-family: var(--serif); font-size: 1.2rem; font-weight: 400; margin-bottom: 0.6rem; }
+    .project-desc { font-size: 0.85rem; color: rgba(245,242,235,0.6); font-weight: 300; line-height: 1.6; flex: 1; }
+    .project-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      margin-top: 1.25rem;
+      font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent);
+      transition: gap 0.2s;
+    }
+    .project-link:hover { gap: 0.7rem; }
+
+    /* ─── Contact ────────────────────────────────────────────────────── */
+    #contact { background: var(--card-bg); text-align: center; }
+    .contact-inner { max-width: 620px; margin: 0 auto; }
+    .contact-inner h2 { font-size: clamp(2.5rem, 5vw, 4rem); }
+    .contact-inner p { color: var(--muted); font-size: 1.05rem; font-weight: 300; margin-bottom: 2.5rem; }
+    .contact-email {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      color: var(--ink);
+      display: inline-block;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .contact-email::after {
+      content: '';
+      position: absolute; bottom: -2px; left: 0; right: 0;
+      height: 2px; background: var(--accent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .contact-email:hover { color: var(--accent); }
+    .contact-email:hover::after { transform: scaleX(1); }
+    .social-row {
+      display: flex; justify-content: center; gap: 1rem; margin-top: 3rem;
+    }
+    .social-btn {
+      width: 48px; height: 48px;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      font-size: 1.1rem;
+      transition: all 0.25s;
+    }
+    .social-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+      transform: translateY(-3px);
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 2rem;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 0.78rem; color: var(--muted);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    /* ─── Scroll reveal ──────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ─── Animations ─────────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-img-wrap { max-width: 340px; margin: 0 auto; }
+      .hero-bg-text { display: none; }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-right { position: static; }
+      .edu-entry { grid-template-columns: 1fr; }
+      .edu-meta { text-align: left; }
+      .ach-grid { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .skills-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .nav-mobile {
+        position: fixed; top: var(--nav-h); left: 0; right: 0;
+        background: var(--paper);
+        border-bottom: 1px solid var(--rule);
+        padding: 1.5rem 2rem;
+        display: none; flex-direction: column; gap: 1.25rem;
+        z-index: 999;
+      }
+      .nav-mobile.open { display: flex; }
+      .nav-mobile a { font-size: 1.1rem; font-weight: 500; }
+    }
+    @media (max-width: 500px) {
+      .skills-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="container">
-      <a href="#home" class="nav-link">Home</a>
-      <a href="#about" class="nav-link">About Me</a>
-      <a href="#skills" class="nav-link">Skills</a>
-      <a href="#education" class="nav-link">Education</a>
-      <a href="#achievements" class="nav-link">Achievements</a>
-      <a href="#projects" class="nav-link">Projects</a>
-      <a href="#contact" class="nav-link">Contact Me</a>
-    </div>
-  </nav>
-  <header id="home">
-    <div class="container hero">
-      <div class="profile-wrapper">
-        <img src="pic ben.png" alt="Ben Robinson" class="profilepic">
-      </div>
-      <div class="hero-text">
-        <h1>Hi, I'm Ben Robinson!</h1>
-        <p>I am a Software Developer |
-        <span class="animate-text">Computer Science and Mathematics Undergraduate</span> | 
-        <span class="animate-text">Coding Enthusiast</span>
-        </p>
-        <a href="#projects" class="cta-button"><b>View My Works!</b></a>
-      </div>
-    </div>
-  </header>
 
-  <section id="about">
-    <div class="container">
-      <h2>About Me</h2>
-      <p>
-        ASEAN Undergraduate Scholarship Awardee in Computer Science and Mathematics at the National University of Singapore, with strong interests in Artificial Intelligence and Software Engineering. 
-        Bronze Medalist at the Asian Pacific Mathematics Olympiad (APMO) and the International Mathematical Olympiad (IMO) 2024. 
-        Selected as one of the top nine Indonesian representatives for the International Olympiad in Artificial Intelligence (IOAI) 2025. 
-        In 2022. Founder of The Strikers Edu, a Mathematics and Science Olympiad training platform with 100+ active students. 
-        I bring creativity, precision, and passion at the intersection of education, technology, and innovation to develop impactful projects for the future of technology.
-      </p>
-    </div>
-  </section>
+<!-- Cursor -->
+<div id="cursor"></div>
 
-  <section id="skills">
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- ─── NAV ─────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a href="#home" class="nav-logo">Ben<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#achievements">Achievements</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile nav -->
+<div class="nav-mobile" id="nav-mobile">
+  <a href="#about" onclick="closeMobile()">About</a>
+  <a href="#skills" onclick="closeMobile()">Skills</a>
+  <a href="#education" onclick="closeMobile()">Education</a>
+  <a href="#achievements" onclick="closeMobile()">Achievements</a>
+  <a href="#projects" onclick="closeMobile()">Projects</a>
+  <a href="#contact" onclick="closeMobile()">Contact</a>
+</div>
+
+<!-- ─── HERO ─────────────────────────────────────────────────────────────── -->
+<header id="home">
+  <div class="hero-bg-text" aria-hidden="true">BR</div>
   <div class="container">
-    <div class="skills-header">
-      <h2>Skills</h2>
-      <a class="cta-button outline" href="Resume Ben.pdf" download>Download Resume</a>
+    <div class="hero-grid">
+      <div class="hero-text">
+        <p class="hero-eyebrow">CS &amp; Mathematics · NUS · ASEAN Scholar</p>
+        <h1 class="hero-title">
+          Ben<br>Robin<em>son</em>
+        </h1>
+        <p class="hero-subtitle">Software developer and mathematician from Indonesia — building at the intersection of AI, competitive mathematics, and education technology.</p>
+        <div class="hero-cta-row">
+          <a href="#projects" class="btn btn-primary">View My Work <i class="fa-solid fa-arrow-down-right"></i></a>
+          <a href="Resume Ben.pdf" download class="btn btn-outline">Download CV <i class="fa-regular fa-file"></i></a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num" data-count="2024">—</div>
+            <div class="stat-label">IMO Bronze</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="100">—</div>
+            <div class="stat-label">Students taught</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="9">—</div>
+            <div class="stat-label">IOAI Indonesia rank</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-img-wrap">
+        <img src="pic ben.png" alt="Portrait of Ben Robinson" loading="eager">
+      </div>
     </div>
-    <div class="skills-container">
-      <div class="skill">
-        <img src="math.png" alt="Mathematics" class="skill-icon">
-        <p>Mathematics</p>
+  </div>
+</header>
+
+<!-- ─── MARQUEE ─────────────────────────────────────────────────────────── -->
+<div class="marquee-strip" aria-hidden="true">
+  <div class="marquee-track">
+    <div class="marquee-item">IMO Bronze 2024</div>
+    <div class="marquee-item">ASEAN Undergraduate Scholar</div>
+    <div class="marquee-item">International Olympiad in AI</div>
+    <div class="marquee-item">National University of Singapore</div>
+    <div class="marquee-item">APMO Bronze Medalist</div>
+    <div class="marquee-item">Founder · The Strikers Edu</div>
+    <div class="marquee-item">100+ Students Mentored</div>
+    <div class="marquee-item">Computer Science &amp; Mathematics</div>
+    <!-- duplicate for seamless loop -->
+    <div class="marquee-item">IMO Bronze 2024</div>
+    <div class="marquee-item">ASEAN Undergraduate Scholar</div>
+    <div class="marquee-item">International Olympiad in AI</div>
+    <div class="marquee-item">National University of Singapore</div>
+    <div class="marquee-item">APMO Bronze Medalist</div>
+    <div class="marquee-item">Founder · The Strikers Edu</div>
+    <div class="marquee-item">100+ Students Mentored</div>
+    <div class="marquee-item">Computer Science &amp; Mathematics</div>
+  </div>
+</div>
+
+<!-- ─── ABOUT ─────────────────────────────────────────────────────────────── -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div>
+        <p class="section-label reveal">Who I am</p>
+        <h2 class="reveal reveal-delay-1">Driven by maths,<br><em style="font-style:italic;font-family:var(--serif)">powered by code</em></h2>
+        <div class="about-body reveal reveal-delay-2">
+          <p>I'm an <strong>ASEAN Undergraduate Scholar</strong> at the National University of Singapore, studying Computer Science with a second major in Mathematics. My work sits at the intersection of AI research, software engineering, and mathematical problem-solving.</p>
+          <p>I earned a <strong>Bronze Medal at the International Mathematical Olympiad (IMO) 2024</strong> and the Asian Pacific Mathematics Olympiad (APMO), and was selected as one of Indonesia's <strong>Top 9 delegates</strong> for the International Olympiad in Artificial Intelligence 2025.</p>
+          <p>In 2022, I founded <strong>The Strikers Edu</strong> — a Mathematics and Science Olympiad training platform that now serves 100+ active students. I believe precision thinking, creativity, and technology together can build a better future.</p>
+        </div>
       </div>
-      <div class="skill">
-        <img src="cpp.png" alt="C++" class="skill-icon">
-        <p>C++</p>
-      </div>
-      <div class="skill">
-        <img src="pyt.png" alt="Python" class="skill-icon">
-        <p>Python</p>
-      </div>
-      <div class="skill">
-        <img src="js.png" alt="PHP" class="skill-icon">
-        <p>JavaScript</p>
-      </div>
-      <div class="skill">
-        <img src="pub.png" alt="HTML" class="skill-icon">
-        <p>public Speaking</p>
-      </div>
-      <div class="skill">
-        <img src="vid.png" alt="Tennis" class="skill-icon">
-        <p>Video Editing</p>
+      <div class="about-right reveal reveal-delay-3">
+        <ul class="about-list">
+          <li>
+            <span class="label">Location</span>
+            <span class="value">Singapore / Indonesia</span>
+          </li>
+          <li>
+            <span class="label">University</span>
+            <span class="value">NUS, Class of 2029</span>
+          </li>
+          <li>
+            <span class="label">Focus</span>
+            <span class="value">AI + Software Engineering</span>
+          </li>
+          <li>
+            <span class="label">Languages</span>
+            <span class="value">Indonesian · English</span>
+          </li>
+          <li>
+            <span class="label">Email</span>
+            <span class="value"><a href="mailto:e1528481@u.nus.edu" style="color:var(--accent)">e1528481@u.nus.edu</a></span>
+          </li>
+          <li>
+            <span class="label">Open to</span>
+            <span class="value">Internships, Research</span>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
-
-  <section id="education">
-    <div class="container">
-      <h2>Education</h2>
-      <div class="education-cards">
-        <article class="education-card">
-          <div class="edu-photo">
-            <img src="uniben.JPG" alt="National University of Singapore campus">
-          </div>
-          <div class="edu-content">
-            <h3>National University of Singapore</h3>
-            <p class="edu-period">Aug 2025 &ndash; Present</p>
-            <p class="edu-degree">B.Comp (Hons) Computer Science & second major in Mathematics</p>
-            <ul class="edu-highlights">
-              <li>ASEAN Undergraduate Scholar with focus in AI + Software Engineering</li>
-              <li>NOC May-Aug Awardee Kuala Lumpur, Malaysia</li>
-            </ul>
-          </div>
-        </article>
-        <article class="education-card">
-          <div class="edu-photo">
-            <img src="hsben.jpeg" alt="Petra 1 Senior High School campus">
-          </div>
-          <div class="edu-content">
-            <h3>Petra 1 Senior High School</h3>
-            <p class="edu-period">Jul 2022 &ndash; May 2025</p>
-            <p class="edu-degree">Science Stream &middot; Concentration in Mathematics Olympiad</p>
-            <ul class="edu-highlights">
-              <li>Graduated Outstanding Student in Academics (Top of Cohort)</li>
-              <li>Led Olympiad prep club mentoring 30+ aspiring candidates</li>
-            </ul>
-          </div>
-        </article>
+<!-- ─── SKILLS ─────────────────────────────────────────────────────────────── -->
+<section id="skills">
+  <div class="container">
+    <div class="skills-top">
+      <div>
+        <p class="section-label reveal">Toolkit</p>
+        <h2 class="reveal reveal-delay-1">Skills &amp; Technologies</h2>
+      </div>
+      <a href="Resume Ben.pdf" download class="btn btn-outline reveal reveal-delay-2">Download CV <i class="fa-regular fa-file-arrow-down"></i></a>
+    </div>
+    <div class="skills-grid reveal reveal-delay-2">
+      <div class="skill-card">
+        <div class="skill-icon-wrap">
+          <img src="math.png" alt="Mathematics" class="skill-img">
+        </div>
+        <div class="skill-name">Mathematics</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="95"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap">
+          <img src="cpp.png" alt="C++" class="skill-img">
+        </div>
+        <div class="skill-name">C++</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="85"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap">
+          <img src="pyt.png" alt="Python" class="skill-img">
+        </div>
+        <div class="skill-name">Python</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="80"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap">
+          <img src="js.png" alt="JavaScript" class="skill-img">
+        </div>
+        <div class="skill-name">JavaScript</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="72"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap">
+          <img src="pub.png" alt="Public Speaking" class="skill-img">
+        </div>
+        <div class="skill-name">Public Speaking</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="88"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap">
+          <img src="vid.png" alt="Video Editing" class="skill-img">
+        </div>
+        <div class="skill-name">Video Editing</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="70"></div></div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="achievements">
-    <div class="container">
-      <h2>Achievements</h2>
-      <div class="achievements-content">
-        <ul class="achievement-list">
-          <li>ASEAN Undergraduate Scholarship Awardee at the National University of Singapore</li>
-          <li>Bronze Medalist, International Mathematical Olympiad (IMO) 2024</li>
-          <li>Bronze Medalist, Asian Pacific Mathematics Olympiad (APMO)</li>
-          <li>Selected among Indonesia's Top 9 delegates for the International Olympiad in AI 2025</li>
-          <li>Founded The Strikers Edu &mdash; a 100+ student STEM Olympiad training platform</li>
-          <li>Named Outstanding Student in Academics at Petra 1 Senior High School</li>
+<!-- ─── EDUCATION ─────────────────────────────────────────────────────────── -->
+<section id="education">
+  <div class="container">
+    <p class="section-label reveal">Background</p>
+    <h2 class="reveal reveal-delay-1">Education</h2>
+    <div class="edu-timeline">
+
+      <div class="edu-entry reveal reveal-delay-2">
+        <div class="edu-meta">
+          <div class="edu-period">Aug 2025 – Present</div>
+          <img src="uniben.JPG" alt="National University of Singapore campus" class="edu-photo">
+        </div>
+        <div>
+          <h3 class="edu-school">National University of Singapore</h3>
+          <p class="edu-degree">B.Comp (Hons) Computer Science · Second Major in Mathematics</p>
+          <ul class="edu-highlights">
+            <li>ASEAN Undergraduate Scholar — full scholarship for academic excellence</li>
+            <li>Focus in Artificial Intelligence and Software Engineering</li>
+            <li>NOC May–Aug Awardee, Kuala Lumpur, Malaysia</li>
           </ul>
-        <div class="achievement-cta">
-          <p>Want the full story behind these milestones?</p>
-          <a class="cta-button outline" href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener noreferrer">Read More on LinkedIn</a>
-          <p>Full link of Ben's achievements!</p>
-          <a class="cta-button outline" href="https://bit.ly/bensachieve" target="_blank" rel="noopener noreferrer">Sheets of full achievement!</a>
         </div>
       </div>
-    </div>
-  </section>
 
-
-  <section id="projects">
-    <div class="container">
-      <h2>Projects</h2>
-      <div class="project-cards">
-        <div class="project-card">
-          <div class="project-photo">
-            <img src="sg101.jpg" alt="Transport 101 web mockup">
-          </div>
-          <h3>Project 1</h3>
-          <p>Transport 101 and to-go places in Singapore!</p>
-          <a href="https://ben-robinsonn.github.io/singapore101/" target="_blank">View Project</a>
+      <div class="edu-entry reveal reveal-delay-3">
+        <div class="edu-meta">
+          <div class="edu-period">Jul 2022 – May 2025</div>
+          <img src="hsben.jpeg" alt="Petra 1 Senior High School campus" class="edu-photo">
         </div>
-        <div class="project-card">
-          <div class="project-photo">
-            <img src="netflix.jpg" alt="Netflix-like UI preview">
-          </div>
-          <h3>Project 2</h3>
-          <p>Netflix-like design in Figma</p>
-          <a href="https://www.figma.com/proto/MIwSi700QJ3ANbqCBVi139/Untitled--Copy-?node-id=0-1&t=AoyTQ8sLolDsuhE7-1" target="_blank">View Project</a>
-        </div>
-        <div class="project-card">
-          <div class="project-photo">
-            <img src="floorball.jpg" alt="Floorball promotional video storyboard">
-          </div>
-          <h3>Project 3</h3>
-          <p>Floorball Promotional Video!</p>
-          <a href="https://www.instagram.com/reel/DQhOP5EkkPz/?igsh=ZjN0Y2R5MnhpZWU2" target="_blank">View Project</a>
+        <div>
+          <h3 class="edu-school">Petra 1 Senior High School</h3>
+          <p class="edu-degree">Science Stream · Concentration in Mathematics Olympiad</p>
+          <ul class="edu-highlights">
+            <li>Graduated as Outstanding Student in Academics — Top of Cohort</li>
+            <li>Led Olympiad prep club mentoring 30+ aspiring candidates</li>
+          </ul>
         </div>
       </div>
-    </div>
-  </section>
 
-  <section id="contact">
-    <div class="container">
-      <h2>Contact</h2>
-      <p>Email me at <a href="mailto:e1528481@u.nus.edu">e1528481@u.nus.edu</a></p>
-      <p>Feel free to reach out to my socials!</p>
-      <div class="social-links" aria-label="Social media links">
-        <a class="social-link" href="https://www.linkedin.com/in/benrobinsonn" target="_blank" aria-label="LinkedIn">
-          <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ACHIEVEMENTS ──────────────────────────────────────────────────────── -->
+<section id="achievements">
+  <div class="container">
+    <p class="section-label reveal">Recognition</p>
+    <h2 class="reveal reveal-delay-1">Achievements</h2>
+    <div class="ach-grid">
+
+      <div class="ach-card reveal reveal-delay-1">
+        <span class="medal">2024</span>
+        <div class="ach-icon">🥉</div>
+        <div class="ach-title">International Mathematical Olympiad</div>
+        <div class="ach-desc">Bronze Medalist at one of the world's most prestigious mathematics competitions, representing Indonesia.</div>
+      </div>
+
+      <div class="ach-card reveal reveal-delay-2">
+        <span class="medal">2024</span>
+        <div class="ach-icon">🥉</div>
+        <div class="ach-title">Asian Pacific Mathematics Olympiad</div>
+        <div class="ach-desc">Bronze Medalist at the APMO, a regional qualifier recognised globally for elite mathematical talent.</div>
+      </div>
+
+      <div class="ach-card reveal reveal-delay-3">
+        <span class="medal">2025</span>
+        <div class="ach-icon">🤖</div>
+        <div class="ach-title">International Olympiad in AI — Indonesia Top 9</div>
+        <div class="ach-desc">Selected as one of only nine Indonesian delegates for the inaugural IOAI, showcasing strength in both maths and AI.</div>
+      </div>
+
+      <div class="ach-card reveal reveal-delay-4">
+        <div class="ach-icon">🎓</div>
+        <div class="ach-title">ASEAN Undergraduate Scholar — NUS</div>
+        <div class="ach-desc">Full merit scholarship awarded to outstanding ASEAN students by the National University of Singapore.</div>
+      </div>
+
+      <div class="ach-card reveal reveal-delay-1">
+        <div class="ach-icon">🏫</div>
+        <div class="ach-title">Founder · The Strikers Edu</div>
+        <div class="ach-desc">Launched a STEM Olympiad training platform in 2022, now serving 100+ active students across Mathematics and Science.</div>
+      </div>
+
+      <div class="ach-card reveal reveal-delay-2">
+        <div class="ach-icon">🏅</div>
+        <div class="ach-title">Outstanding Student in Academics</div>
+        <div class="ach-desc">Graduated top of cohort at Petra 1 Senior High School — recognising exceptional academic performance.</div>
+      </div>
+
+    </div>
+    <div class="ach-links reveal">
+      <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="btn btn-primary">Full Story on LinkedIn <i class="fab fa-linkedin-in"></i></a>
+      <a href="https://bit.ly/bensachieve" target="_blank" rel="noopener" class="btn btn-outline">Complete Achievement Sheet <i class="fa-solid fa-table"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROJECTS ───────────────────────────────────────────────────────────── -->
+<section id="projects">
+  <div class="container">
+    <p class="section-label reveal">Work</p>
+    <h2 class="reveal reveal-delay-1">Selected Projects</h2>
+    <div class="projects-grid">
+
+      <div class="project-card reveal reveal-delay-1">
+        <div class="project-img-wrap">
+          <img src="sg101.jpg" alt="Transport 101 Singapore web app" class="project-img" loading="lazy">
+        </div>
+        <div class="project-body">
+          <div class="project-num">01 / Web App</div>
+          <div class="project-title">Transport 101 — Singapore</div>
+          <p class="project-desc">An interactive guide to transport and must-visit spots across Singapore. Built with HTML, CSS, and JavaScript.</p>
+          <a href="https://ben-robinsonn.github.io/singapore101/" target="_blank" rel="noopener" class="project-link">Visit site <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-2">
+        <div class="project-img-wrap">
+          <img src="netflix.jpg" alt="Netflix-style Figma UI design" class="project-img" loading="lazy">
+        </div>
+        <div class="project-body">
+          <div class="project-num">02 / UI Design</div>
+          <div class="project-title">Netflix-Style UI in Figma</div>
+          <p class="project-desc">A high-fidelity Netflix-inspired UI prototype created in Figma, exploring streaming service design patterns.</p>
+          <a href="https://www.figma.com/proto/MIwSi700QJ3ANbqCBVi139/Untitled--Copy-?node-id=0-1&t=AoyTQ8sLolDsuhE7-1" target="_blank" rel="noopener" class="project-link">View prototype <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="project-card reveal reveal-delay-3">
+        <div class="project-img-wrap">
+          <img src="floorball.jpg" alt="Floorball promotional video" class="project-img" loading="lazy">
+        </div>
+        <div class="project-body">
+          <div class="project-num">03 / Video</div>
+          <div class="project-title">Floorball Promo Reel</div>
+          <p class="project-desc">A promotional video produced for a floorball event — scripted, shot, and edited for Instagram Reels.</p>
+          <a href="https://www.instagram.com/reel/DQhOP5EkkPz/?igsh=ZjN0Y2R5MnhpZWU2" target="_blank" rel="noopener" class="project-link">Watch reel <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ───────────────────────────────────────────────────────────── -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <p class="section-label reveal" style="justify-content:center">Get in touch</p>
+      <h2 class="reveal reveal-delay-1">Let's build<br><em style="font-style:italic;font-family:var(--serif)">something together</em></h2>
+      <p class="reveal reveal-delay-2">Open to internships, research collaborations, and interesting conversations about AI, mathematics, or education tech.</p>
+      <a href="mailto:e1528481@u.nus.edu" class="contact-email reveal reveal-delay-3">e1528481@u.nus.edu</a>
+      <div class="social-row reveal reveal-delay-4">
+        <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn">
+          <i class="fab fa-linkedin-in"></i>
         </a>
-        <a class="social-link" href="https://github.com/ben-robinsonn" target="_blank" aria-label="GitHub">
-          <i class="fab fa-github" aria-hidden="true"></i>
+        <a href="https://github.com/ben-robinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="GitHub">
+          <i class="fab fa-github"></i>
         </a>
-        <a class="social-link" href="https://www.instagram.com/benrobinson0906" target="_blank" aria-label="Instagram">
-          <i class="fab fa-instagram" aria-hidden="true"></i>
+        <a href="https://www.instagram.com/benrobinson0906" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram">
+          <i class="fab fa-instagram"></i>
         </a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <footer>
-    <div class="container">
-      <p>Made with vscodee by Ben !!</p>
-    </div>
-  </footer>
+<!-- ─── FOOTER ─────────────────────────────────────────────────────────────── -->
+<footer>
+  <span>© 2025 Ben Robinson &nbsp;·&nbsp; Built with care in VSCode</span>
+</footer>
+
+<!-- ─── SCRIPTS ─────────────────────────────────────────────────────────────── -->
+<script>
+  /* Cursor */
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .skill-card, .project-card, .ach-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '32px'; cursor.style.height = '32px'; cursor.style.opacity = '0.4';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '10px'; cursor.style.height = '10px'; cursor.style.opacity = '1';
+    });
+  });
+
+  /* Scroll progress */
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    bar.style.width = pct + '%';
+  });
+
+  /* Hamburger */
+  const ham = document.getElementById('hamburger');
+  const mob = document.getElementById('nav-mobile');
+  ham.addEventListener('click', () => mob.classList.toggle('open'));
+  function closeMobile() { mob.classList.remove('open'); }
+
+  /* Scroll reveal */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* Skill bar animation */
+  const barObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.skill-bar').forEach(b => {
+          b.style.width = b.dataset.width + '%';
+        });
+        barObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.skills-grid').forEach(el => barObserver.observe(el));
+
+  /* Nav active state */
+  const sections = document.querySelectorAll('section[id], header[id]');
+  const navLinks  = document.querySelectorAll('.nav-links a, .nav-mobile a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--ink)' : '';
+    });
+  });
+</script>
 </body>
 </html>
