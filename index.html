@@ -40,7 +40,7 @@
     img { max-width: 100%; display: block; }
     a { color: inherit; text-decoration: none; }
 
-    /* ─── Animated grain overlay ─────────────────────────────────────── */
+    /* ─── Grain overlay ──────────────────────────────────────────────── */
     body::before {
       content: '';
       position: fixed; inset: 0;
@@ -49,6 +49,62 @@
       z-index: 9999;
       opacity: 0.5;
     }
+
+    /* ─── PAGE LOADER ────────────────────────────────────────────────── */
+    #loader {
+      position: fixed; inset: 0;
+      background: var(--ink);
+      z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    #loader.done { pointer-events: none; }
+    .loader-name {
+      font-family: var(--serif);
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      color: var(--paper);
+      letter-spacing: -0.04em;
+      overflow: hidden;
+      display: flex;
+    }
+    .loader-char {
+      display: inline-block;
+      transform: translateY(110%);
+      opacity: 0;
+    }
+    .loader-bar-wrap {
+      width: 200px;
+      height: 2px;
+      background: rgba(245,242,235,0.15);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .loader-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      border-radius: 99px;
+      transition: width 0.05s linear;
+    }
+    .loader-pct {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,242,235,0.4);
+    }
+    /* Loader wipe-out panels */
+    .loader-panel {
+      position: absolute; top: 0;
+      width: 50%;
+      height: 100%;
+      background: var(--ink);
+      transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .loader-panel-left  { left: 0;  transform-origin: left; }
+    .loader-panel-right { right: 0; transform-origin: right; }
+    #loader.done .loader-panel-left  { transform: translateX(-100%); }
+    #loader.done .loader-panel-right { transform: translateX(100%); }
 
     /* ─── Cursor dot ─────────────────────────────────────────────────── */
     #cursor {
@@ -59,10 +115,10 @@
       pointer-events: none;
       z-index: 10000;
       transform: translate(-50%, -50%);
-      transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
+      transition: width 0.2s, height 0.2s, opacity 0.2s;
       mix-blend-mode: multiply;
+      opacity: 0;
     }
-    body:hover #cursor { opacity: 1; }
 
     /* ─── Scroll progress bar ────────────────────────────────────────── */
     #progress-bar {
@@ -84,7 +140,10 @@
       border-bottom: 1px solid var(--rule);
       z-index: 1000;
       display: flex; align-items: center;
+      transform: translateY(-100%);
+      transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
     }
+    nav.visible { transform: translateY(0); }
     .nav-inner {
       max-width: var(--max);
       width: 100%;
@@ -120,8 +179,6 @@
     }
     .nav-links a:hover { color: var(--ink); }
     .nav-links a:hover::after { width: 100%; }
-
-    /* hamburger */
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
     .hamburger span { display: block; width: 24px; height: 2px; background: var(--ink); transition: 0.3s; }
     .nav-mobile { display: none; }
@@ -158,7 +215,7 @@
       margin-bottom: 3rem;
     }
 
-    /* ─── Hero ────────────────────────────────────────────────────────── */
+    /* ─── HERO ────────────────────────────────────────────────────────── */
     #home {
       min-height: 100vh;
       display: flex; align-items: center;
@@ -172,13 +229,17 @@
       gap: 4rem;
       align-items: center;
     }
+
+    /* Hero text — animated in by JS after loader */
     .hero-eyebrow {
       font-size: 0.72rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 1.25rem;
-      opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
     .hero-title {
       font-family: var(--serif);
@@ -187,11 +248,19 @@
       letter-spacing: -0.04em;
       line-height: 0.95;
       margin-bottom: 1.75rem;
-      opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+      overflow: hidden;
     }
-    .hero-title em {
-      font-style: italic;
-      color: var(--accent);
+    /* Each word in the name slides up individually */
+    .hero-title .word-wrap {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+    }
+    .hero-title .word {
+      display: inline-block;
+      transform: translateY(115%);
+      opacity: 0;
+      transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s ease;
     }
     .hero-subtitle {
       font-size: 1.05rem;
@@ -200,12 +269,36 @@
       line-height: 1.7;
       margin-bottom: 2.5rem;
       font-weight: 300;
-      opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
     .hero-cta-row {
       display: flex; gap: 1rem; flex-wrap: wrap;
-      opacity: 0; animation: fadeUp 0.7s 0.65s forwards;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
+    .hero-stats {
+      display: flex; gap: 2.5rem; margin-top: 2.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    /* All hero elements become visible class .in */
+    .hero-eyebrow.in,
+    .hero-subtitle.in,
+    .hero-cta-row.in,
+    .hero-stats.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hero-title .word.in {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
     .btn {
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.75rem 1.75rem;
@@ -242,8 +335,11 @@
     /* hero image */
     .hero-img-wrap {
       position: relative;
-      opacity: 0; animation: fadeIn 0.9s 0.5s forwards;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
     }
+    .hero-img-wrap.in { opacity: 1; transform: translateY(0); }
     .hero-img-wrap::before {
       content: '';
       position: absolute;
@@ -274,16 +370,10 @@
     }
     .hero-img-wrap:hover img { filter: grayscale(0%); }
 
-    /* hero stats ticker */
-    .hero-stats {
-      display: flex; gap: 2.5rem; margin-top: 2.5rem;
-      opacity: 0; animation: fadeUp 0.7s 0.8s forwards;
-    }
     .stat-item { border-left: 2px solid var(--accent); padding-left: 0.75rem; }
     .stat-num { font-family: var(--serif); font-size: 2rem; line-height: 1; }
     .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
 
-    /* hero bg decoration */
     .hero-bg-text {
       position: absolute;
       right: -2%;
@@ -319,11 +409,7 @@
       text-transform: uppercase;
       display: flex; align-items: center; gap: 1.5rem;
     }
-    .marquee-item::after {
-      content: '✦';
-      color: var(--accent);
-      font-size: 0.6rem;
-    }
+    .marquee-item::after { content: '✦'; color: var(--accent); font-size: 0.6rem; }
     @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
     /* ─── About ──────────────────────────────────────────────────────── */
@@ -352,7 +438,7 @@
     }
     .about-list li:first-child { border-top: 1px solid var(--rule); }
     .about-list .label { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
-    .about-list .value { font-weight: 500; text-align: right; }
+    .about-list .value { font-weight: 500; text-align: right; max-width: 60%; }
 
     /* ─── Skills ─────────────────────────────────────────────────────── */
     #skills { position: relative; overflow: hidden; }
@@ -401,23 +487,22 @@
     .skill-bar-wrap { width: 100%; background: var(--rule); height: 3px; border-radius: 99px; margin-top: 0.25rem; }
     .skill-bar { height: 3px; background: var(--accent); border-radius: 99px; transition: width 1.2s ease; width: 0; }
 
-    /* ─── Education ──────────────────────────────────────────────────── */
-    #education { background: var(--card-bg); }
-    .edu-timeline { position: relative; padding-left: 2rem; }
-    .edu-timeline::before {
+    /* ─── Shared timeline (Work + Education) ─────────────────────────── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
       content: '';
       position: absolute; left: 0; top: 0; bottom: 0;
       width: 1px; background: var(--rule);
     }
-    .edu-entry {
+    .tl-entry {
       position: relative;
       padding-bottom: 4rem;
       display: grid;
       grid-template-columns: 220px 1fr;
       gap: 3rem;
     }
-    .edu-entry:last-child { padding-bottom: 0; }
-    .edu-entry::before {
+    .tl-entry:last-child { padding-bottom: 0; }
+    .tl-entry::before {
       content: '';
       position: absolute;
       left: -2rem;
@@ -429,15 +514,21 @@
       box-shadow: 0 0 0 1px var(--accent);
       transform: translateX(-4px);
     }
-    .edu-meta { text-align: right; }
-    .edu-period {
+    .tl-meta { text-align: right; }
+    .tl-period {
       font-size: 0.78rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 0.5rem;
     }
-    .edu-photo {
+    .tl-location {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      font-style: italic;
+    }
+    .tl-photo {
       width: 100%;
       aspect-ratio: 16/9;
       object-fit: cover;
@@ -446,22 +537,101 @@
       filter: grayscale(20%);
       transition: filter 0.3s;
     }
-    .edu-photo:hover { filter: grayscale(0%); }
-    .edu-school {
+    .tl-photo:hover { filter: grayscale(0%); }
+    .tl-org {
       font-family: var(--serif);
       font-size: 1.6rem;
       font-weight: 400;
       letter-spacing: -0.02em;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.25rem;
     }
-    .edu-degree { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; font-weight: 300; }
-    .edu-highlights { list-style: none; }
-    .edu-highlights li {
+    .tl-role {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .tl-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; font-weight: 300; }
+    .tl-bullets { list-style: none; }
+    .tl-bullets li {
       padding: 0.35rem 0;
       font-size: 0.9rem;
       display: flex; gap: 0.6rem;
     }
-    .edu-highlights li::before { content: '—'; color: var(--accent); flex-shrink: 0; }
+    .tl-bullets li::before { content: '—'; color: var(--accent); flex-shrink: 0; }
+    .tl-placeholder {
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 0.5rem;
+      border: 1px dashed var(--rule);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+    }
+
+    /* ─── Work Experience ────────────────────────────────────────────── */
+    #work { background: var(--card-bg); }
+
+    /* ─── Education ──────────────────────────────────────────────────── */
+    #education { background: var(--paper); }
+
+    /* ─── Co-curricular ──────────────────────────────────────────────── */
+    #cca { background: var(--card-bg); }
+    .cca-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .cca-card {
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      padding: 2rem;
+      background: var(--paper);
+      position: relative;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+      overflow: hidden;
+    }
+    .cca-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 12px 40px rgba(200,75,47,0.08);
+      transform: translateY(-3px);
+    }
+    .cca-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 3px; height: 0;
+      background: var(--accent);
+      transition: height 0.3s ease;
+    }
+    .cca-card:hover::before { height: 100%; }
+    .cca-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .cca-org {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-weight: 400;
+      margin-bottom: 0.25rem;
+    }
+    .cca-role {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .cca-period {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .cca-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.6;
+    }
 
     /* ─── Achievements ───────────────────────────────────────────────── */
     #achievements { overflow: hidden; }
@@ -528,10 +698,7 @@
     .project-card:hover .project-img { transform: scale(1.04); }
     .project-img-wrap { overflow: hidden; }
     .project-body { padding: 1.75rem; flex: 1; display: flex; flex-direction: column; }
-    .project-num {
-      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 0.5rem;
-    }
+    .project-num { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
     .project-title { font-family: var(--serif); font-size: 1.2rem; font-weight: 400; margin-bottom: 0.6rem; }
     .project-desc { font-size: 0.85rem; color: rgba(245,242,235,0.6); font-weight: 300; line-height: 1.6; flex: 1; }
     .project-link {
@@ -566,9 +733,7 @@
     }
     .contact-email:hover { color: var(--accent); }
     .contact-email:hover::after { transform: scaleX(1); }
-    .social-row {
-      display: flex; justify-content: center; gap: 1rem; margin-top: 3rem;
-    }
+    .social-row { display: flex; justify-content: center; gap: 1rem; margin-top: 3rem; }
     .social-btn {
       width: 48px; height: 48px;
       border: 1px solid var(--rule);
@@ -580,7 +745,6 @@
     }
     .social-btn:hover {
       border-color: var(--ink);
-      color: var(--ink);
       transform: translateY(-3px);
       background: var(--ink);
       color: var(--paper);
@@ -602,10 +766,7 @@
       transform: translateY(28px);
       transition: opacity 0.65s ease, transform 0.65s ease;
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
     .reveal-delay-1 { transition-delay: 0.1s; }
     .reveal-delay-2 { transition-delay: 0.2s; }
     .reveal-delay-3 { transition-delay: 0.3s; }
@@ -628,9 +789,10 @@
       .hero-bg-text { display: none; }
       .about-grid { grid-template-columns: 1fr; }
       .about-right { position: static; }
-      .edu-entry { grid-template-columns: 1fr; }
-      .edu-meta { text-align: left; }
+      .tl-entry { grid-template-columns: 1fr; }
+      .tl-meta { text-align: left; }
       .ach-grid { grid-template-columns: 1fr; }
+      .cca-grid { grid-template-columns: 1fr; }
       .projects-grid { grid-template-columns: 1fr; }
       .skills-grid { grid-template-columns: 1fr 1fr; }
       .nav-links { display: none; }
@@ -650,9 +812,37 @@
       .skills-grid { grid-template-columns: 1fr; }
       .hero-stats { gap: 1.5rem; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .marquee-track { animation: none; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ─── PAGE LOADER ─────────────────────────────────────────────────────────── -->
+<div id="loader">
+  <div class="loader-name" id="loader-name" aria-hidden="true">
+    <span class="loader-char">B</span>
+    <span class="loader-char">e</span>
+    <span class="loader-char">n</span>
+    <span class="loader-char" style="margin-left:0.25em">R</span>
+    <span class="loader-char">o</span>
+    <span class="loader-char">b</span>
+    <span class="loader-char">i</span>
+    <span class="loader-char">n</span>
+    <span class="loader-char">s</span>
+    <span class="loader-char">o</span>
+    <span class="loader-char">n</span>
+  </div>
+  <div class="loader-bar-wrap">
+    <div class="loader-bar" id="loader-bar"></div>
+  </div>
+  <div class="loader-pct" id="loader-pct">0%</div>
+  <div class="loader-panel loader-panel-left"></div>
+  <div class="loader-panel loader-panel-right"></div>
+</div>
 
 <!-- Cursor -->
 <div id="cursor"></div>
@@ -661,14 +851,16 @@
 <div id="progress-bar"></div>
 
 <!-- ─── NAV ─────────────────────────────────────────────────────────────── -->
-<nav>
+<nav id="main-nav">
   <div class="nav-inner">
     <a href="#home" class="nav-logo">Ben<span>.</span></a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#skills">Skills</a></li>
+      <li><a href="#work">Experience</a></li>
       <li><a href="#education">Education</a></li>
-      <li><a href="#achievements">Achievements</a></li>
+      <li><a href="#cca">Activities</a></li>
+      <li><a href="#achievements">Awards</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -682,8 +874,10 @@
 <div class="nav-mobile" id="nav-mobile">
   <a href="#about" onclick="closeMobile()">About</a>
   <a href="#skills" onclick="closeMobile()">Skills</a>
+  <a href="#work" onclick="closeMobile()">Experience</a>
   <a href="#education" onclick="closeMobile()">Education</a>
-  <a href="#achievements" onclick="closeMobile()">Achievements</a>
+  <a href="#cca" onclick="closeMobile()">Activities</a>
+  <a href="#achievements" onclick="closeMobile()">Awards</a>
   <a href="#projects" onclick="closeMobile()">Projects</a>
   <a href="#contact" onclick="closeMobile()">Contact</a>
 </div>
@@ -696,7 +890,8 @@
       <div class="hero-text">
         <p class="hero-eyebrow">CS &amp; Mathematics · NUS · ASEAN Scholar</p>
         <h1 class="hero-title">
-          Ben<br>Robin<em>son</em>
+          <span class="word-wrap"><span class="word">Ben</span></span><br>
+          <span class="word-wrap"><span class="word">Robinson</span></span>
         </h1>
         <p class="hero-subtitle">Software developer and mathematician from Indonesia — building at the intersection of AI, competitive mathematics, and education technology.</p>
         <div class="hero-cta-row">
@@ -705,20 +900,19 @@
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <div class="stat-num" data-count="2024">—</div>
+            <div class="stat-num">2024</div>
             <div class="stat-label">IMO Bronze</div>
           </div>
           <div class="stat-item">
-            <div class="stat-num" data-count="100">—</div>
+            <div class="stat-num">100+</div>
             <div class="stat-label">Students taught</div>
           </div>
           <div class="stat-item">
-            <div class="stat-num" data-count="9">—</div>
-            <div class="stat-label">IOAI Indonesia rank</div>
+            <div class="stat-num">Top 9</div>
+            <div class="stat-label">IOAI Indonesia</div>
           </div>
         </div>
       </div>
-
       <div class="hero-img-wrap">
         <img src="pic ben.png" alt="Portrait of Ben Robinson" loading="eager">
       </div>
@@ -737,7 +931,6 @@
     <div class="marquee-item">Founder · The Strikers Edu</div>
     <div class="marquee-item">100+ Students Mentored</div>
     <div class="marquee-item">Computer Science &amp; Mathematics</div>
-    <!-- duplicate for seamless loop -->
     <div class="marquee-item">IMO Bronze 2024</div>
     <div class="marquee-item">ASEAN Undergraduate Scholar</div>
     <div class="marquee-item">International Olympiad in AI</div>
@@ -773,6 +966,10 @@
             <span class="value">NUS, Class of 2029</span>
           </li>
           <li>
+            <span class="label">Major</span>
+            <span class="value">Computer Science &amp; Mathematics</span>
+          </li>
+          <li>
             <span class="label">Focus</span>
             <span class="value">AI + Software Engineering</span>
           </li>
@@ -806,47 +1003,113 @@
     </div>
     <div class="skills-grid reveal reveal-delay-2">
       <div class="skill-card">
-        <div class="skill-icon-wrap">
-          <img src="math.png" alt="Mathematics" class="skill-img">
-        </div>
+        <div class="skill-icon-wrap"><img src="math.png" alt="Mathematics" class="skill-img"></div>
         <div class="skill-name">Mathematics</div>
         <div class="skill-bar-wrap"><div class="skill-bar" data-width="95"></div></div>
       </div>
       <div class="skill-card">
-        <div class="skill-icon-wrap">
-          <img src="cpp.png" alt="C++" class="skill-img">
-        </div>
+        <div class="skill-icon-wrap"><img src="cpp.png" alt="C++" class="skill-img"></div>
         <div class="skill-name">C++</div>
         <div class="skill-bar-wrap"><div class="skill-bar" data-width="85"></div></div>
       </div>
       <div class="skill-card">
-        <div class="skill-icon-wrap">
-          <img src="pyt.png" alt="Python" class="skill-img">
-        </div>
+        <div class="skill-icon-wrap"><img src="pyt.png" alt="Python" class="skill-img"></div>
         <div class="skill-name">Python</div>
         <div class="skill-bar-wrap"><div class="skill-bar" data-width="80"></div></div>
       </div>
       <div class="skill-card">
-        <div class="skill-icon-wrap">
-          <img src="js.png" alt="JavaScript" class="skill-img">
-        </div>
+        <div class="skill-icon-wrap"><img src="js.png" alt="JavaScript" class="skill-img"></div>
         <div class="skill-name">JavaScript</div>
         <div class="skill-bar-wrap"><div class="skill-bar" data-width="72"></div></div>
       </div>
       <div class="skill-card">
-        <div class="skill-icon-wrap">
-          <img src="pub.png" alt="Public Speaking" class="skill-img">
-        </div>
+        <div class="skill-icon-wrap"><img src="pub.png" alt="Public Speaking" class="skill-img"></div>
         <div class="skill-name">Public Speaking</div>
         <div class="skill-bar-wrap"><div class="skill-bar" data-width="88"></div></div>
       </div>
       <div class="skill-card">
-        <div class="skill-icon-wrap">
-          <img src="vid.png" alt="Video Editing" class="skill-img">
-        </div>
+        <div class="skill-icon-wrap"><img src="vid.png" alt="Video Editing" class="skill-img"></div>
         <div class="skill-name">Video Editing</div>
         <div class="skill-bar-wrap"><div class="skill-bar" data-width="70"></div></div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WORK EXPERIENCE ───────────────────────────────────────────────────── -->
+<section id="work">
+  <div class="container">
+    <p class="section-label reveal">Career</p>
+    <h2 class="reveal reveal-delay-1">Work Experience</h2>
+    <div class="timeline">
+
+      <!-- 1. Cashku -->
+      <div class="tl-entry reveal reveal-delay-1">
+        <div class="tl-meta">
+          <div class="tl-period">May – Aug 2026</div>
+          <div class="tl-location">Kuala Lumpur, Malaysia</div>
+          <img src="bencashku.jpg" alt="Ben at Cashku office" class="tl-photo">
+        </div>
+        <div>
+          <h3 class="tl-org">Cashku</h3>
+          <div class="tl-role">Tech, Data &amp; Operations Intern</div>
+          <div class="tl-placeholder">Description coming soon — add your highlights here.</div>
+        </div>
+      </div>
+
+      <!-- 2. The Strikers Edu -->
+      <div class="tl-entry reveal reveal-delay-2">
+        <div class="tl-meta">
+          <div class="tl-period">Jan 2022 – Present</div>
+          <div class="tl-location">Hybrid</div>
+        </div>
+        <div>
+          <h3 class="tl-org">The Strikers Edu</h3>
+          <div class="tl-role">Founder</div>
+          <ul class="tl-bullets">
+            <li>Established and scaled from 0 to 100+ students and 10+ tutors.</li>
+            <li>Produced admission system, curriculum, and marketing strategies.</li>
+            <li>Created publicity content and increased engagement by 200%.</li>
+            <li>Produced problem sets and structured training modules to enhance effectiveness and help students win competitions.</li>
+            <li>Mastered IG ads, earned a monthly net profit of $1,000.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3. MOOC Quality Controller -->
+      <div class="tl-entry reveal reveal-delay-3">
+        <div class="tl-meta">
+          <div class="tl-period">Nov 2024 – Present</div>
+          <div class="tl-location">Hybrid</div>
+        </div>
+        <div>
+          <h3 class="tl-org">Mathematics Olympiad Open Contest</h3>
+          <div class="tl-role">Quality Controller</div>
+          <ul class="tl-bullets">
+            <li>Reviewed and validated Olympiad problems for accuracy, clarity, and difficulty balance.</li>
+            <li>Ensured high-quality official solutions in monthly contests.</li>
+            <li>Coordinated with problem setters to maintain quality and consistency across contest rounds.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 4. Mathematics Olympiad Tutor -->
+      <div class="tl-entry reveal reveal-delay-4">
+        <div class="tl-meta">
+          <div class="tl-period">Dec 2023 – Jun 2025</div>
+          <div class="tl-location">Indonesia</div>
+        </div>
+        <div>
+          <h3 class="tl-org">Mantappu Academy · PT Pejuang Indonesia Cerdas · PT Mandiri Edukasi Indonesia</h3>
+          <div class="tl-role">Mathematics Olympiad Tutor</div>
+          <ul class="tl-bullets">
+            <li>Created structured Olympiad-style problem sets for students.</li>
+            <li>Conducted 5+ webinar sessions for Olympiad preparation.</li>
+            <li>Trained Olympiad-level questions to 500+ secondary and high school students for the Indonesia National Mathematical Olympiad.</li>
+          </ul>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -856,37 +1119,75 @@
   <div class="container">
     <p class="section-label reveal">Background</p>
     <h2 class="reveal reveal-delay-1">Education</h2>
-    <div class="edu-timeline">
+    <div class="timeline">
 
-      <div class="edu-entry reveal reveal-delay-2">
-        <div class="edu-meta">
-          <div class="edu-period">Aug 2025 – Present</div>
-          <img src="uniben.JPG" alt="National University of Singapore campus" class="edu-photo">
+      <div class="tl-entry reveal reveal-delay-2">
+        <div class="tl-meta">
+          <div class="tl-period">Aug 2025 – Present</div>
+          <div class="tl-location">Singapore</div>
+          <img src="uniben.JPG" alt="National University of Singapore campus" class="tl-photo">
         </div>
         <div>
-          <h3 class="edu-school">National University of Singapore</h3>
-          <p class="edu-degree">B.Comp (Hons) Computer Science · Second Major in Mathematics</p>
-          <ul class="edu-highlights">
+          <h3 class="tl-org">National University of Singapore</h3>
+          <div class="tl-sub">B.Comp (Hons) Computer Science · Second Major in Mathematics · Minor in Quantitative Finance</div>
+          <ul class="tl-bullets">
             <li>ASEAN Undergraduate Scholar — full scholarship for academic excellence</li>
-            <li>Focus in Artificial Intelligence and Software Engineering</li>
-            <li>NOC May–Aug Awardee, Kuala Lumpur, Malaysia</li>
+            <li>CAP: 4.7 / 5.0 — A+ in Discrete Structures &amp; Linear Algebra for Computing</li>
+            <li>NOC Awardee, Kuala Lumpur, Malaysia (May–Aug 2026)</li>
           </ul>
         </div>
       </div>
 
-      <div class="edu-entry reveal reveal-delay-3">
-        <div class="edu-meta">
-          <div class="edu-period">Jul 2022 – May 2025</div>
-          <img src="hsben.jpeg" alt="Petra 1 Senior High School campus" class="edu-photo">
+      <div class="tl-entry reveal reveal-delay-3">
+        <div class="tl-meta">
+          <div class="tl-period">Jul 2022 – May 2025</div>
+          <div class="tl-location">Indonesia</div>
+          <img src="hsben.jpeg" alt="Petra 1 Senior High School campus" class="tl-photo">
         </div>
         <div>
-          <h3 class="edu-school">Petra 1 Senior High School</h3>
-          <p class="edu-degree">Science Stream · Concentration in Mathematics Olympiad</p>
-          <ul class="edu-highlights">
-            <li>Graduated as Outstanding Student in Academics — Top of Cohort</li>
+          <h3 class="tl-org">Petra 1 Senior High School</h3>
+          <div class="tl-sub">Science Stream · Concentration in Mathematics Olympiad</div>
+          <ul class="tl-bullets">
+            <li>Graduated as Outstanding Student in Academics — Top of Cohort (GPA 93.93/100)</li>
+            <li>Perfect score in Mathematics (100/100)</li>
             <li>Led Olympiad prep club mentoring 30+ aspiring candidates</li>
           </ul>
         </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── CO-CURRICULAR ACTIVITIES ─────────────────────────────────────────── -->
+<section id="cca">
+  <div class="container">
+    <p class="section-label reveal">Campus Life</p>
+    <h2 class="reveal reveal-delay-1">Co-Curricular Activities</h2>
+    <div class="cca-grid">
+
+      <div class="cca-card reveal reveal-delay-1">
+        <div class="cca-icon">🗞️</div>
+        <div class="cca-org">NUS Students' Union</div>
+        <div class="cca-role">Publications Platform Executive · Student Associate</div>
+        <div class="cca-period">Jan 2026 – Present &nbsp;·&nbsp; Singapore</div>
+        <div class="cca-desc">Description coming soon — add your highlights here.</div>
+      </div>
+
+      <div class="cca-card reveal reveal-delay-2">
+        <div class="cca-icon">💻</div>
+        <div class="cca-org">NUS Students' Computing Club</div>
+        <div class="cca-role">Tech Lead Subcommittee</div>
+        <div class="cca-period">Nov 2025 – Present &nbsp;·&nbsp; Singapore</div>
+        <div class="cca-desc">Description coming soon — add your highlights here.</div>
+      </div>
+
+      <div class="cca-card reveal reveal-delay-3">
+        <div class="cca-icon">🏠</div>
+        <div class="cca-org">Temasek Hall</div>
+        <div class="cca-role">Outreach Team (Temasek Hearts) · Videographer (Video Production Unit)</div>
+        <div class="cca-period">Aug 2025 – Present &nbsp;·&nbsp; Singapore</div>
+        <div class="cca-desc">Description coming soon — add your highlights here.</div>
       </div>
 
     </div>
@@ -899,46 +1200,39 @@
     <p class="section-label reveal">Recognition</p>
     <h2 class="reveal reveal-delay-1">Achievements</h2>
     <div class="ach-grid">
-
       <div class="ach-card reveal reveal-delay-1">
         <span class="medal">2024</span>
         <div class="ach-icon">🥉</div>
         <div class="ach-title">International Mathematical Olympiad</div>
         <div class="ach-desc">Bronze Medalist at one of the world's most prestigious mathematics competitions, representing Indonesia.</div>
       </div>
-
       <div class="ach-card reveal reveal-delay-2">
         <span class="medal">2024</span>
         <div class="ach-icon">🥉</div>
         <div class="ach-title">Asian Pacific Mathematics Olympiad</div>
         <div class="ach-desc">Bronze Medalist at the APMO, a regional qualifier recognised globally for elite mathematical talent.</div>
       </div>
-
       <div class="ach-card reveal reveal-delay-3">
         <span class="medal">2025</span>
         <div class="ach-icon">🤖</div>
         <div class="ach-title">International Olympiad in AI — Indonesia Top 9</div>
-        <div class="ach-desc">Selected as one of only nine Indonesian delegates for the inaugural IOAI, showcasing strength in both maths and AI.</div>
+        <div class="ach-desc">Selected as one of only nine Indonesian delegates for the inaugural IOAI, from 60,000+ students.</div>
       </div>
-
       <div class="ach-card reveal reveal-delay-4">
         <div class="ach-icon">🎓</div>
         <div class="ach-title">ASEAN Undergraduate Scholar — NUS</div>
         <div class="ach-desc">Full merit scholarship awarded to outstanding ASEAN students by the National University of Singapore.</div>
       </div>
-
       <div class="ach-card reveal reveal-delay-1">
         <div class="ach-icon">🏫</div>
         <div class="ach-title">Founder · The Strikers Edu</div>
         <div class="ach-desc">Launched a STEM Olympiad training platform in 2022, now serving 100+ active students across Mathematics and Science.</div>
       </div>
-
       <div class="ach-card reveal reveal-delay-2">
         <div class="ach-icon">🏅</div>
         <div class="ach-title">Outstanding Student in Academics</div>
         <div class="ach-desc">Graduated top of cohort at Petra 1 Senior High School — recognising exceptional academic performance.</div>
       </div>
-
     </div>
     <div class="ach-links reveal">
       <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="btn btn-primary">Full Story on LinkedIn <i class="fab fa-linkedin-in"></i></a>
@@ -953,7 +1247,6 @@
     <p class="section-label reveal">Work</p>
     <h2 class="reveal reveal-delay-1">Selected Projects</h2>
     <div class="projects-grid">
-
       <div class="project-card reveal reveal-delay-1">
         <div class="project-img-wrap">
           <img src="sg101.jpg" alt="Transport 101 Singapore web app" class="project-img" loading="lazy">
@@ -965,7 +1258,6 @@
           <a href="https://ben-robinsonn.github.io/singapore101/" target="_blank" rel="noopener" class="project-link">Visit site <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
-
       <div class="project-card reveal reveal-delay-2">
         <div class="project-img-wrap">
           <img src="netflix.jpg" alt="Netflix-style Figma UI design" class="project-img" loading="lazy">
@@ -977,7 +1269,6 @@
           <a href="https://www.figma.com/proto/MIwSi700QJ3ANbqCBVi139/Untitled--Copy-?node-id=0-1&t=AoyTQ8sLolDsuhE7-1" target="_blank" rel="noopener" class="project-link">View prototype <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
-
       <div class="project-card reveal reveal-delay-3">
         <div class="project-img-wrap">
           <img src="floorball.jpg" alt="Floorball promotional video" class="project-img" loading="lazy">
@@ -989,7 +1280,6 @@
           <a href="https://www.instagram.com/reel/DQhOP5EkkPz/?igsh=ZjN0Y2R5MnhpZWU2" target="_blank" rel="noopener" class="project-link">Watch reel <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -1003,15 +1293,9 @@
       <p class="reveal reveal-delay-2">Open to internships, research collaborations, and interesting conversations about AI, mathematics, or education tech.</p>
       <a href="mailto:e1528481@u.nus.edu" class="contact-email reveal reveal-delay-3">e1528481@u.nus.edu</a>
       <div class="social-row reveal reveal-delay-4">
-        <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn">
-          <i class="fab fa-linkedin-in"></i>
-        </a>
-        <a href="https://github.com/ben-robinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="GitHub">
-          <i class="fab fa-github"></i>
-        </a>
-        <a href="https://www.instagram.com/benrobinson0906" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram">
-          <i class="fab fa-instagram"></i>
-        </a>
+        <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://github.com/ben-robinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.instagram.com/benrobinson0906" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
       </div>
     </div>
   </div>
@@ -1019,70 +1303,127 @@
 
 <!-- ─── FOOTER ─────────────────────────────────────────────────────────────── -->
 <footer>
-  <span>© 2025 Ben Robinson &nbsp;·&nbsp; Built with care in VSCode</span>
+  <span>© 2026 Ben Robinson &nbsp;·&nbsp; Built with care in VSCode</span>
 </footer>
 
 <!-- ─── SCRIPTS ─────────────────────────────────────────────────────────────── -->
 <script>
-  /* Cursor */
+  /* ── PAGE LOADER ─────────────────────────────────────────────────── */
+  const loaderEl   = document.getElementById('loader');
+  const loaderBar  = document.getElementById('loader-bar');
+  const loaderPct  = document.getElementById('loader-pct');
+  const loaderChars = document.querySelectorAll('.loader-char');
+
+  // Step 1: stagger each letter of "Ben Robinson" up
+  loaderChars.forEach((ch, i) => {
+    setTimeout(() => {
+      ch.style.transition = 'transform 0.55s cubic-bezier(0.16,1,0.3,1), opacity 0.55s ease';
+      ch.style.transform  = 'translateY(0)';
+      ch.style.opacity    = '1';
+    }, 120 + i * 60);
+  });
+
+  // Step 2: animate the loading bar 0→100 over ~1.4s
+  let pct = 0;
+  const barInterval = setInterval(() => {
+    pct += Math.random() * 12 + 4;
+    if (pct >= 100) { pct = 100; clearInterval(barInterval); }
+    loaderBar.style.width = pct + '%';
+    loaderPct.textContent = Math.floor(pct) + '%';
+    if (pct === 100) setTimeout(revealSite, 220);
+  }, 80);
+
+  function revealSite() {
+    // Letters fall back down
+    loaderChars.forEach((ch, i) => {
+      setTimeout(() => {
+        ch.style.transition = 'transform 0.45s cubic-bezier(0.76,0,0.24,1), opacity 0.45s ease';
+        ch.style.transform  = 'translateY(-110%)';
+        ch.style.opacity    = '0';
+      }, i * 40);
+    });
+
+    // After letters gone, split the panels
+    setTimeout(() => {
+      loaderEl.classList.add('done');
+
+      // Nav slides in
+      setTimeout(() => document.getElementById('main-nav').classList.add('visible'), 400);
+
+      // Animate hero text in sequence
+      const eyebrow  = document.querySelector('.hero-eyebrow');
+      const words    = document.querySelectorAll('.hero-title .word');
+      const subtitle = document.querySelector('.hero-subtitle');
+      const cta      = document.querySelector('.hero-cta-row');
+      const stats    = document.querySelector('.hero-stats');
+      const imgWrap  = document.querySelector('.hero-img-wrap');
+
+      setTimeout(() => eyebrow.classList.add('in'),  500);
+      // Name words stagger
+      words.forEach((w, i) => {
+        setTimeout(() => w.classList.add('in'), 680 + i * 120);
+      });
+      setTimeout(() => subtitle.classList.add('in'), 1000);
+      setTimeout(() => cta.classList.add('in'),      1150);
+      setTimeout(() => stats.classList.add('in'),    1300);
+      setTimeout(() => imgWrap.classList.add('in'),  600);
+
+      // Enable cursor after load
+      setTimeout(() => { document.getElementById('cursor').style.opacity = '1'; }, 1500);
+
+      // Hide loader fully after transition
+      setTimeout(() => { loaderEl.style.display = 'none'; }, 1400);
+    }, loaderChars.length * 40 + 200);
+  }
+
+  /* ── CURSOR ───────────────────────────────────────────────────────── */
   const cursor = document.getElementById('cursor');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
     cursor.style.top  = e.clientY + 'px';
   });
-  document.querySelectorAll('a, button, .skill-card, .project-card, .ach-card').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.width = '32px'; cursor.style.height = '32px'; cursor.style.opacity = '0.4';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.width = '10px'; cursor.style.height = '10px'; cursor.style.opacity = '1';
-    });
+  document.querySelectorAll('a, button, .skill-card, .project-card, .ach-card, .cca-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.width = '32px'; cursor.style.height = '32px'; cursor.style.opacity = '0.4'; });
+    el.addEventListener('mouseleave', () => { cursor.style.width = '10px'; cursor.style.height = '10px'; cursor.style.opacity = '1'; });
   });
 
-  /* Scroll progress */
+  /* ── SCROLL PROGRESS ──────────────────────────────────────────────── */
   const bar = document.getElementById('progress-bar');
   window.addEventListener('scroll', () => {
     const h = document.documentElement;
-    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-    bar.style.width = pct + '%';
+    bar.style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100 + '%';
   });
 
-  /* Hamburger */
-  const ham = document.getElementById('hamburger');
-  const mob = document.getElementById('nav-mobile');
-  ham.addEventListener('click', () => mob.classList.toggle('open'));
-  function closeMobile() { mob.classList.remove('open'); }
+  /* ── HAMBURGER ────────────────────────────────────────────────────── */
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('nav-mobile').classList.toggle('open');
+  });
+  function closeMobile() { document.getElementById('nav-mobile').classList.remove('open'); }
 
-  /* Scroll reveal */
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  /* ── SCROLL REVEAL ────────────────────────────────────────────────── */
+  const revObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); } });
   }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
 
-  /* Skill bar animation */
-  const barObserver = new IntersectionObserver(entries => {
+  /* ── SKILL BARS ───────────────────────────────────────────────────── */
+  const barObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        e.target.querySelectorAll('.skill-bar').forEach(b => {
-          b.style.width = b.dataset.width + '%';
-        });
-        barObserver.unobserve(e.target);
+        e.target.querySelectorAll('.skill-bar').forEach(b => { b.style.width = b.dataset.width + '%'; });
+        barObs.unobserve(e.target);
       }
     });
   }, { threshold: 0.3 });
-  document.querySelectorAll('.skills-grid').forEach(el => barObserver.observe(el));
+  document.querySelectorAll('.skills-grid').forEach(el => barObs.observe(el));
 
-  /* Nav active state */
-  const sections = document.querySelectorAll('section[id], header[id]');
+  /* ── NAV ACTIVE STATE ─────────────────────────────────────────────── */
+  const sections  = document.querySelectorAll('section[id], header[id]');
   const navLinks  = document.querySelectorAll('.nav-links a, .nav-mobile a');
   window.addEventListener('scroll', () => {
     let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 100) current = s.id;
-    });
-    navLinks.forEach(a => {
-      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--ink)' : '';
-    });
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(a => { a.style.color = a.getAttribute('href') === '#' + current ? 'var(--ink)' : ''; });
   });
 </script>
 </body>
