@@ -57,52 +57,90 @@
       z-index: 99999;
       display: flex; align-items: center; justify-content: center;
       flex-direction: column;
-      gap: 2rem;
+      gap: 2.5rem;
+      overflow: hidden;
     }
     #loader.done { pointer-events: none; }
+
+    /* Morphing background blob */
+    .loader-blob {
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle at 40% 40%, rgba(200,75,47,0.18) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: blobPulse 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes blobPulse {
+      0%,100% { transform: scale(1) translate(0,0); border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%; }
+      33%      { transform: scale(1.08) translate(30px,-20px); border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%; }
+      66%      { transform: scale(0.95) translate(-20px,30px); border-radius: 70% 30% 50% 50% / 40% 70% 30% 60%; }
+    }
+
+    /* Orbiting accent dot */
+    .loader-orbit {
+      position: absolute;
+      width: 320px; height: 320px;
+      border: 1px solid rgba(200,75,47,0.2);
+      border-radius: 50%;
+      animation: orbit 4s linear infinite;
+    }
+    .loader-orbit::after {
+      content: '';
+      position: absolute;
+      top: -5px; left: 50%;
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 16px 4px rgba(200,75,47,0.6);
+    }
+    @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Name */
     .loader-name {
       font-family: var(--serif);
       font-size: clamp(2.5rem, 8vw, 6rem);
       color: var(--paper);
       letter-spacing: -0.04em;
-      overflow: hidden;
       display: flex;
+      position: relative; z-index: 1;
     }
     .loader-char {
       display: inline-block;
       transform: translateY(110%);
       opacity: 0;
     }
-    .loader-bar-wrap {
-      width: 200px;
-      height: 2px;
-      background: rgba(245,242,235,0.15);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-    .loader-bar {
-      height: 100%;
-      background: var(--accent);
-      width: 0%;
-      border-radius: 99px;
-      transition: width 0.05s linear;
-    }
-    .loader-pct {
+
+    /* Tagline that types in */
+    .loader-tag {
       font-size: 0.72rem;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: rgba(245,242,235,0.4);
+      color: rgba(245,242,235,0.35);
+      position: relative; z-index: 1;
+      min-height: 1em;
     }
-    /* Loader wipe-out panels */
+    .loader-tag .cursor-blink {
+      display: inline-block;
+      width: 2px; height: 0.85em;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Wipe-out panels */
     .loader-panel {
       position: absolute; top: 0;
-      width: 50%;
-      height: 100%;
+      width: 50%; height: 100%;
       background: var(--ink);
-      transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+      transition: transform 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+      z-index: 2;
     }
-    .loader-panel-left  { left: 0;  transform-origin: left; }
-    .loader-panel-right { right: 0; transform-origin: right; }
+    .loader-panel-left  { left: 0; }
+    .loader-panel-right { right: 0; }
     #loader.done .loader-panel-left  { transform: translateX(-100%); }
     #loader.done .loader-panel-right { transform: translateX(100%); }
 
@@ -823,6 +861,8 @@
 
 <!-- ─── PAGE LOADER ─────────────────────────────────────────────────────────── -->
 <div id="loader">
+  <div class="loader-blob"></div>
+  <div class="loader-orbit"></div>
   <div class="loader-name" id="loader-name" aria-hidden="true">
     <span class="loader-char">B</span>
     <span class="loader-char">e</span>
@@ -836,10 +876,7 @@
     <span class="loader-char">o</span>
     <span class="loader-char">n</span>
   </div>
-  <div class="loader-bar-wrap">
-    <div class="loader-bar" id="loader-bar"></div>
-  </div>
-  <div class="loader-pct" id="loader-pct">0%</div>
+  <div class="loader-tag" id="loader-tag"><span class="cursor-blink"></span></div>
   <div class="loader-panel loader-panel-left"></div>
   <div class="loader-panel loader-panel-right"></div>
 </div>
@@ -856,12 +893,12 @@
     <a href="#home" class="nav-logo">Ben<span>.</span></a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#work">Experience</a></li>
       <li><a href="#education">Education</a></li>
-      <li><a href="#cca">Activities</a></li>
       <li><a href="#achievements">Awards</a></li>
+      <li><a href="#work">Experience</a></li>
+      <li><a href="#cca">Activities</a></li>
       <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="hamburger" id="hamburger" aria-label="Open menu">
@@ -873,12 +910,12 @@
 <!-- Mobile nav -->
 <div class="nav-mobile" id="nav-mobile">
   <a href="#about" onclick="closeMobile()">About</a>
-  <a href="#skills" onclick="closeMobile()">Skills</a>
-  <a href="#work" onclick="closeMobile()">Experience</a>
   <a href="#education" onclick="closeMobile()">Education</a>
-  <a href="#cca" onclick="closeMobile()">Activities</a>
   <a href="#achievements" onclick="closeMobile()">Awards</a>
+  <a href="#work" onclick="closeMobile()">Experience</a>
+  <a href="#cca" onclick="closeMobile()">Activities</a>
   <a href="#projects" onclick="closeMobile()">Projects</a>
+  <a href="#skills" onclick="closeMobile()">Skills</a>
   <a href="#contact" onclick="closeMobile()">Contact</a>
 </div>
 
@@ -900,11 +937,11 @@
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <div class="stat-num">IMO</div>
-            <div class="stat-label">Bronze 2024</div>
+            <div class="stat-num">2024</div>
+            <div class="stat-label">IMO Bronze</div>
           </div>
           <div class="stat-item">
-            <div class="stat-num">500+</div>
+            <div class="stat-num">100+</div>
             <div class="stat-label">Students taught</div>
           </div>
           <div class="stat-item">
@@ -924,20 +961,20 @@
 <div class="marquee-strip" aria-hidden="true">
   <div class="marquee-track">
     <div class="marquee-item">IMO Bronze 2024</div>
-    <div class="marquee-item">ASEAN Undergraduate Scholarship</div>
-    <div class="marquee-item">Top 9 Indonesia International Olympiad in AI</div>
+    <div class="marquee-item">ASEAN Undergraduate Scholar</div>
+    <div class="marquee-item">International Olympiad in AI</div>
     <div class="marquee-item">National University of Singapore</div>
     <div class="marquee-item">APMO Bronze Medalist</div>
     <div class="marquee-item">Founder · The Strikers Edu</div>
-    <div class="marquee-item">500+ Students Mentored</div>
+    <div class="marquee-item">100+ Students Mentored</div>
     <div class="marquee-item">Computer Science &amp; Mathematics</div>
     <div class="marquee-item">IMO Bronze 2024</div>
-    <div class="marquee-item">ASEAN Undergraduate Scholarship</div>
-    <div class="marquee-item">Top 9 Indonesia International Olympiad in AI</div>
+    <div class="marquee-item">ASEAN Undergraduate Scholar</div>
+    <div class="marquee-item">International Olympiad in AI</div>
     <div class="marquee-item">National University of Singapore</div>
     <div class="marquee-item">APMO Bronze Medalist</div>
     <div class="marquee-item">Founder · The Strikers Edu</div>
-    <div class="marquee-item">500+ Students Mentored</div>
+    <div class="marquee-item">100+ Students Mentored</div>
     <div class="marquee-item">Computer Science &amp; Mathematics</div>
   </div>
 </div>
@@ -959,11 +996,11 @@
         <ul class="about-list">
           <li>
             <span class="label">Location</span>
-            <span class="value">Singapore</span>
+            <span class="value">Singapore / Indonesia</span>
           </li>
           <li>
             <span class="label">University</span>
-            <span class="value">National University of Singapore</span>
+            <span class="value">NUS, Class of 2029</span>
           </li>
           <li>
             <span class="label">Major</span>
@@ -971,7 +1008,7 @@
           </li>
           <li>
             <span class="label">Focus</span>
-            <span class="value">Algorithms + AI</span>
+            <span class="value">AI + Software Engineering</span>
           </li>
           <li>
             <span class="label">Languages</span>
@@ -983,7 +1020,7 @@
           </li>
           <li>
             <span class="label">Open to</span>
-            <span class="value">Internships, Collaborations</span>
+            <span class="value">Internships, Research</span>
           </li>
         </ul>
       </div>
@@ -991,53 +1028,100 @@
   </div>
 </section>
 
-<!-- ─── SKILLS ─────────────────────────────────────────────────────────────── -->
-<section id="skills">
+<!-- ─── EDUCATION ─────────────────────────────────────────────────────────── -->
+<section id="education" style="background:var(--paper)">
   <div class="container">
-    <div class="skills-top">
-      <div>
-        <p class="section-label reveal">Toolkit</p>
-        <h2 class="reveal reveal-delay-1">Skills &amp; Technologies</h2>
+    <p class="section-label reveal">Background</p>
+    <h2 class="reveal reveal-delay-1">Education</h2>
+    <div class="timeline">
+
+      <div class="tl-entry reveal reveal-delay-2">
+        <div class="tl-meta">
+          <div class="tl-period">Aug 2025 – Present</div>
+          <div class="tl-location">Singapore</div>
+          <img src="uniben.JPG" alt="National University of Singapore campus" class="tl-photo">
+        </div>
+        <div>
+          <h3 class="tl-org">National University of Singapore</h3>
+          <div class="tl-sub">B.Comp (Hons) Computer Science · Second Major in Mathematics · Minor in Quantitative Finance</div>
+          <ul class="tl-bullets">
+            <li>ASEAN Undergraduate Scholar — full scholarship for academic excellence</li>
+            <li>CAP: 4.7 / 5.0 — A+ in Discrete Structures &amp; Linear Algebra for Computing</li>
+            <li>NOC Awardee, Kuala Lumpur, Malaysia (May–Aug 2026)</li>
+          </ul>
+        </div>
       </div>
-      <a href="Resume Ben.pdf" download class="btn btn-outline reveal reveal-delay-2">Download CV <i class="fa-regular fa-file-arrow-down"></i></a>
+
+      <div class="tl-entry reveal reveal-delay-3">
+        <div class="tl-meta">
+          <div class="tl-period">Jul 2022 – May 2025</div>
+          <div class="tl-location">Indonesia</div>
+          <img src="hsben.jpeg" alt="Petra 1 Senior High School campus" class="tl-photo">
+        </div>
+        <div>
+          <h3 class="tl-org">Petra 1 Senior High School</h3>
+          <div class="tl-sub">Science Stream · Concentration in Mathematics Olympiad</div>
+          <ul class="tl-bullets">
+            <li>Graduated as Outstanding Student in Academics — Top of Cohort (GPA 93.93/100)</li>
+            <li>Perfect score in Mathematics (100/100)</li>
+            <li>Led Olympiad prep club mentoring 30+ aspiring candidates</li>
+          </ul>
+        </div>
+      </div>
+
     </div>
-    <div class="skills-grid reveal reveal-delay-2">
-      <div class="skill-card">
-        <div class="skill-icon-wrap"><img src="math.png" alt="Mathematics" class="skill-img"></div>
-        <div class="skill-name">Mathematics</div>
-        <div class="skill-bar-wrap"><div class="skill-bar" data-width="95"></div></div>
+  </div>
+</section>
+
+<!-- ─── ACHIEVEMENTS ──────────────────────────────────────────────────────── -->
+<section id="achievements" style="background:var(--card-bg);overflow:hidden">
+  <div class="container">
+    <p class="section-label reveal">Recognition</p>
+    <h2 class="reveal reveal-delay-1">Achievements</h2>
+    <div class="ach-grid">
+      <div class="ach-card reveal reveal-delay-1">
+        <span class="medal">2024</span>
+        <div class="ach-icon">🥉</div>
+        <div class="ach-title">International Mathematical Olympiad</div>
+        <div class="ach-desc">Bronze Medalist at one of the world's most prestigious mathematics competitions, representing Indonesia.</div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon-wrap"><img src="cpp.png" alt="C++" class="skill-img"></div>
-        <div class="skill-name">C++</div>
-        <div class="skill-bar-wrap"><div class="skill-bar" data-width="85"></div></div>
+      <div class="ach-card reveal reveal-delay-2">
+        <span class="medal">2024</span>
+        <div class="ach-icon">🥉</div>
+        <div class="ach-title">Asian Pacific Mathematics Olympiad</div>
+        <div class="ach-desc">Bronze Medalist at the APMO, a regional qualifier recognised globally for elite mathematical talent.</div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon-wrap"><img src="pyt.png" alt="Python" class="skill-img"></div>
-        <div class="skill-name">Python</div>
-        <div class="skill-bar-wrap"><div class="skill-bar" data-width="80"></div></div>
+      <div class="ach-card reveal reveal-delay-3">
+        <span class="medal">2025</span>
+        <div class="ach-icon">🤖</div>
+        <div class="ach-title">International Olympiad in AI — Indonesia Top 9</div>
+        <div class="ach-desc">Selected as one of only nine Indonesian delegates for the inaugural IOAI, from 60,000+ students.</div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon-wrap"><img src="js.png" alt="JavaScript" class="skill-img"></div>
-        <div class="skill-name">JavaScript</div>
-        <div class="skill-bar-wrap"><div class="skill-bar" data-width="72"></div></div>
+      <div class="ach-card reveal reveal-delay-4">
+        <div class="ach-icon">🎓</div>
+        <div class="ach-title">ASEAN Undergraduate Scholar — NUS</div>
+        <div class="ach-desc">Full merit scholarship awarded to outstanding ASEAN students by the National University of Singapore.</div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon-wrap"><img src="pub.png" alt="Public Speaking" class="skill-img"></div>
-        <div class="skill-name">Public Speaking</div>
-        <div class="skill-bar-wrap"><div class="skill-bar" data-width="88"></div></div>
+      <div class="ach-card reveal reveal-delay-1">
+        <div class="ach-icon">🏫</div>
+        <div class="ach-title">Founder · The Strikers Edu</div>
+        <div class="ach-desc">Launched a STEM Olympiad training platform in 2022, now serving 100+ active students across Mathematics and Science.</div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon-wrap"><img src="vid.png" alt="Video Editing" class="skill-img"></div>
-        <div class="skill-name">Video Editing</div>
-        <div class="skill-bar-wrap"><div class="skill-bar" data-width="70"></div></div>
+      <div class="ach-card reveal reveal-delay-2">
+        <div class="ach-icon">🏅</div>
+        <div class="ach-title">Outstanding Student in Academics</div>
+        <div class="ach-desc">Graduated top of cohort at Petra 1 Senior High School — recognising exceptional academic performance.</div>
       </div>
+    </div>
+    <div class="ach-links reveal">
+      <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="btn btn-primary">Full Story on LinkedIn <i class="fab fa-linkedin-in"></i></a>
+      <a href="https://bit.ly/bensachieve" target="_blank" rel="noopener" class="btn btn-outline">Complete Achievement Sheet <i class="fa-solid fa-table"></i></a>
     </div>
   </div>
 </section>
 
 <!-- ─── WORK EXPERIENCE ───────────────────────────────────────────────────── -->
-<section id="work">
+<section id="work" style="background:var(--paper)">
   <div class="container">
     <p class="section-label reveal">Career</p>
     <h2 class="reveal reveal-delay-1">Work Experience</h2>
@@ -1062,7 +1146,6 @@
         <div class="tl-meta">
           <div class="tl-period">Jan 2022 – Present</div>
           <div class="tl-location">Hybrid</div>
-          <img src="bencashku.jpg" alt="Ben at Cashku office" class="tl-photo">
         </div>
         <div>
           <h3 class="tl-org">The Strikers Edu</h3>
@@ -1115,53 +1198,8 @@
   </div>
 </section>
 
-<!-- ─── EDUCATION ─────────────────────────────────────────────────────────── -->
-<section id="education">
-  <div class="container">
-    <p class="section-label reveal">Background</p>
-    <h2 class="reveal reveal-delay-1">Education</h2>
-    <div class="timeline">
-
-      <div class="tl-entry reveal reveal-delay-2">
-        <div class="tl-meta">
-          <div class="tl-period">Aug 2025 – Present</div>
-          <div class="tl-location">Singapore</div>
-          <img src="uniben.JPG" alt="National University of Singapore campus" class="tl-photo">
-        </div>
-        <div>
-          <h3 class="tl-org">National University of Singapore</h3>
-          <div class="tl-sub">B.Comp (Hons) Computer Science · Second Major in Mathematics · Minor in Quantitative Finance</div>
-          <ul class="tl-bullets">
-            <li>ASEAN Undergraduate Scholar — full scholarship for academic excellence</li>
-            <li>CAP: 4.7 / 5.0 — A+ in Discrete Structures &amp; Linear Algebra for Computing</li>
-            <li>NOC Awardee, Kuala Lumpur, Malaysia (May–Aug 2026)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="tl-entry reveal reveal-delay-3">
-        <div class="tl-meta">
-          <div class="tl-period">Jul 2022 – May 2025</div>
-          <div class="tl-location">Indonesia</div>
-          <img src="hsben.jpeg" alt="Petra 1 Senior High School campus" class="tl-photo">
-        </div>
-        <div>
-          <h3 class="tl-org">Petra 1 Senior High School</h3>
-          <div class="tl-sub">Science Stream · Concentration in Mathematics Olympiad</div>
-          <ul class="tl-bullets">
-            <li>Graduated as Outstanding Student in Academics — Top of Cohort (GPA 93.93/100)</li>
-            <li>Perfect score in Mathematics (100/100)</li>
-            <li>Led Olympiad prep club mentoring 30+ aspiring candidates</li>
-          </ul>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
 <!-- ─── CO-CURRICULAR ACTIVITIES ─────────────────────────────────────────── -->
-<section id="cca">
+<section id="cca" style="background:var(--card-bg)">
   <div class="container">
     <p class="section-label reveal">Campus Life</p>
     <h2 class="reveal reveal-delay-1">Co-Curricular Activities</h2>
@@ -1191,53 +1229,6 @@
         <div class="cca-desc">Description coming soon — add your highlights here.</div>
       </div>
 
-    </div>
-  </div>
-</section>
-
-<!-- ─── ACHIEVEMENTS ──────────────────────────────────────────────────────── -->
-<section id="achievements">
-  <div class="container">
-    <p class="section-label reveal">Recognition</p>
-    <h2 class="reveal reveal-delay-1">Achievements</h2>
-    <div class="ach-grid">
-      <div class="ach-card reveal reveal-delay-1">
-        <span class="medal">2024</span>
-        <div class="ach-icon">🥉</div>
-        <div class="ach-title">International Mathematical Olympiad</div>
-        <div class="ach-desc">Bronze Medalist at one of the world's most prestigious mathematics competitions, representing Indonesia.</div>
-      </div>
-      <div class="ach-card reveal reveal-delay-2">
-        <span class="medal">2024</span>
-        <div class="ach-icon">🥉</div>
-        <div class="ach-title">Asian Pacific Mathematics Olympiad</div>
-        <div class="ach-desc">Bronze Medalist at the APMO, a regional qualifier recognised globally for elite mathematical talent.</div>
-      </div>
-      <div class="ach-card reveal reveal-delay-3">
-        <span class="medal">2025</span>
-        <div class="ach-icon">🤖</div>
-        <div class="ach-title">International Olympiad in AI — Indonesia Top 9</div>
-        <div class="ach-desc">Selected as one of only nine Indonesian delegates for the inaugural IOAI, from 60,000+ students.</div>
-      </div>
-      <div class="ach-card reveal reveal-delay-4">
-        <div class="ach-icon">🎓</div>
-        <div class="ach-title">ASEAN Undergraduate Scholar — NUS</div>
-        <div class="ach-desc">Full merit scholarship awarded to outstanding ASEAN students by the National University of Singapore.</div>
-      </div>
-      <div class="ach-card reveal reveal-delay-1">
-        <div class="ach-icon">🏫</div>
-        <div class="ach-title">Founder · The Strikers Edu</div>
-        <div class="ach-desc">Launched a STEM Olympiad training platform in 2022, now serving 100+ active students across Mathematics and Science.</div>
-      </div>
-      <div class="ach-card reveal reveal-delay-2">
-        <div class="ach-icon">🏅</div>
-        <div class="ach-title">Outstanding Student in Academics</div>
-        <div class="ach-desc">Graduated top of cohort at Petra 1 Senior High School — recognising exceptional academic performance.</div>
-      </div>
-    </div>
-    <div class="ach-links reveal">
-      <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="btn btn-primary">Full Story on LinkedIn <i class="fab fa-linkedin-in"></i></a>
-      <a href="https://bit.ly/bensachieve" target="_blank" rel="noopener" class="btn btn-outline">Complete Achievement Sheet <i class="fa-solid fa-table"></i></a>
     </div>
   </div>
 </section>
@@ -1285,6 +1276,51 @@
   </div>
 </section>
 
+<!-- ─── SKILLS ─────────────────────────────────────────────────────────────── -->
+<section id="skills" style="background:var(--card-bg)">
+  <div class="container">
+    <div class="skills-top">
+      <div>
+        <p class="section-label reveal">Toolkit</p>
+        <h2 class="reveal reveal-delay-1">Skills &amp; Technologies</h2>
+      </div>
+      <a href="Resume Ben.pdf" download class="btn btn-outline reveal reveal-delay-2">Download CV <i class="fa-regular fa-file-arrow-down"></i></a>
+    </div>
+    <div class="skills-grid reveal reveal-delay-2">
+      <div class="skill-card">
+        <div class="skill-icon-wrap"><img src="math.png" alt="Mathematics" class="skill-img"></div>
+        <div class="skill-name">Mathematics</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="95"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap"><img src="cpp.png" alt="C++" class="skill-img"></div>
+        <div class="skill-name">C++</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="85"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap"><img src="pyt.png" alt="Python" class="skill-img"></div>
+        <div class="skill-name">Python</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="80"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap"><img src="js.png" alt="JavaScript" class="skill-img"></div>
+        <div class="skill-name">JavaScript</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="72"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap"><img src="pub.png" alt="Public Speaking" class="skill-img"></div>
+        <div class="skill-name">Public Speaking</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="88"></div></div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon-wrap"><img src="vid.png" alt="Video Editing" class="skill-img"></div>
+        <div class="skill-name">Video Editing</div>
+        <div class="skill-bar-wrap"><div class="skill-bar" data-width="70"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── CONTACT ───────────────────────────────────────────────────────────── -->
 <section id="contact">
   <div class="container">
@@ -1292,11 +1328,12 @@
       <p class="section-label reveal" style="justify-content:center">Get in touch</p>
       <h2 class="reveal reveal-delay-1">Let's build<br><em style="font-style:italic;font-family:var(--serif)">something together</em></h2>
       <p class="reveal reveal-delay-2">Open to internships, research collaborations, and interesting conversations about AI, mathematics, or education tech.</p>
-      <a href="mailto:e1528481@u.nus.edu" class="contact-email reveal reveal-delay-3">e1528481@u.nus.edu</a>
+      <a href="mailto:benrobinson@u.nus.edu" class="contact-email reveal reveal-delay-3">benrobinson@u.nus.edu</a>
       <div class="social-row reveal reveal-delay-4">
         <a href="https://www.linkedin.com/in/benrobinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         <a href="https://github.com/ben-robinsonn" target="_blank" rel="noopener" class="social-btn" aria-label="GitHub"><i class="fab fa-github"></i></a>
         <a href="https://www.instagram.com/benrobinson0906" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/@benrobinson0906" target="_blank" rel="noopener" class="social-btn" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
       </div>
     </div>
   </div>
@@ -1310,10 +1347,42 @@
 <!-- ─── SCRIPTS ─────────────────────────────────────────────────────────────── -->
 <script>
   /* ── PAGE LOADER ─────────────────────────────────────────────────── */
-  const loaderEl   = document.getElementById('loader');
-  const loaderBar  = document.getElementById('loader-bar');
-  const loaderPct  = document.getElementById('loader-pct');
+  const loaderEl    = document.getElementById('loader');
   const loaderChars = document.querySelectorAll('.loader-char');
+  const loaderTag   = document.getElementById('loader-tag');
+  const blink       = loaderTag.querySelector('.cursor-blink');
+
+  const taglines = [
+    'CS & Mathematics · NUS',
+    'IMO Bronze Medalist',
+    'ASEAN Scholar',
+  ];
+
+  // Typewriter effect for tagline
+  let tagIdx = 0, charIdx = 0, typing = true;
+  function typeStep() {
+    const txt = taglines[tagIdx];
+    if (typing) {
+      charIdx++;
+      loaderTag.textContent = txt.slice(0, charIdx);
+      loaderTag.appendChild(blink);
+      if (charIdx < txt.length) {
+        setTimeout(typeStep, 55);
+      } else {
+        setTimeout(() => { typing = false; typeStep(); }, 600);
+      }
+    } else {
+      charIdx--;
+      loaderTag.textContent = txt.slice(0, charIdx);
+      loaderTag.appendChild(blink);
+      if (charIdx > 0) {
+        setTimeout(typeStep, 30);
+      } else {
+        typing = true;
+        tagIdx = (tagIdx + 1) % taglines.length;
+      }
+    }
+  }
 
   // Step 1: stagger each letter of "Ben Robinson" up
   loaderChars.forEach((ch, i) => {
@@ -1324,34 +1393,33 @@
     }, 120 + i * 60);
   });
 
-  // Step 2: animate the loading bar 0→100 over ~1.4s
-  let pct = 0;
-  const barInterval = setInterval(() => {
-    pct += Math.random() * 12 + 4;
-    if (pct >= 100) { pct = 100; clearInterval(barInterval); }
-    loaderBar.style.width = pct + '%';
-    loaderPct.textContent = Math.floor(pct) + '%';
-    if (pct === 100) setTimeout(revealSite, 220);
-  }, 80);
+  // Step 2: start typewriter after letters land (~900ms)
+  setTimeout(typeStep, 900);
+
+  // Step 3: dismiss after ~2s total — no waiting for a counter
+  setTimeout(revealSite, 2000);
 
   function revealSite() {
-    // Letters fall back down
+    // Letters shoot upward
     loaderChars.forEach((ch, i) => {
       setTimeout(() => {
         ch.style.transition = 'transform 0.45s cubic-bezier(0.76,0,0.24,1), opacity 0.45s ease';
         ch.style.transform  = 'translateY(-110%)';
         ch.style.opacity    = '0';
-      }, i * 40);
+      }, i * 35);
     });
+    // Tagline fades
+    loaderTag.style.transition = 'opacity 0.3s';
+    loaderTag.style.opacity = '0';
 
-    // After letters gone, split the panels
+    // Split panels wipe after letters leave
     setTimeout(() => {
       loaderEl.classList.add('done');
 
       // Nav slides in
       setTimeout(() => document.getElementById('main-nav').classList.add('visible'), 400);
 
-      // Animate hero text in sequence
+      // Hero elements animate in
       const eyebrow  = document.querySelector('.hero-eyebrow');
       const words    = document.querySelectorAll('.hero-title .word');
       const subtitle = document.querySelector('.hero-subtitle');
@@ -1360,7 +1428,6 @@
       const imgWrap  = document.querySelector('.hero-img-wrap');
 
       setTimeout(() => eyebrow.classList.add('in'),  500);
-      // Name words stagger
       words.forEach((w, i) => {
         setTimeout(() => w.classList.add('in'), 680 + i * 120);
       });
@@ -1369,12 +1436,9 @@
       setTimeout(() => stats.classList.add('in'),    1300);
       setTimeout(() => imgWrap.classList.add('in'),  600);
 
-      // Enable cursor after load
       setTimeout(() => { document.getElementById('cursor').style.opacity = '1'; }, 1500);
-
-      // Hide loader fully after transition
       setTimeout(() => { loaderEl.style.display = 'none'; }, 1400);
-    }, loaderChars.length * 40 + 200);
+    }, loaderChars.length * 35 + 200);
   }
 
   /* ── CURSOR ───────────────────────────────────────────────────────── */
